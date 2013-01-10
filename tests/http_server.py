@@ -15,14 +15,10 @@
 # OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 #
 
-import base64
-from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
-import cgi
 import os
-import socket
-import tempfile
-import threading
-import unittest
+import base64
+from BaseHTTPServer import BaseHTTPRequestHandler
+import cgi
 import urlparse
 import Cookie
 
@@ -36,14 +32,14 @@ from restkit.util import to_bytestring
 HOST = 'localhost'
 PORT = (os.getpid() % 31000) + 1024
 
+
 class HTTPTestHandler(BaseHTTPRequestHandler):
 
     def __init__(self, request, client_address, server):
         self.auth = 'Basic ' + base64.encodestring('test:test')[:-1]
         self.count = 0
         BaseHTTPRequestHandler.__init__(self, request, client_address, server)
-        
-        
+
     def do_GET(self):
         self.parsed_uri = urlparse.urlparse(urllib.unquote(self.path))
         self.query = {}
@@ -94,7 +90,8 @@ class HTTPTestHandler(BaseHTTPRequestHandler):
 
             if not 'Authorization' in self.headers:
                 realm = "test"
-                extra_headers.append(('WWW-Authenticate', 'Basic realm="%s"' % realm))
+                extra_headers.append(
+                    ('WWW-Authenticate', 'Basic realm="%s"' % realm))
                 self._respond(401, extra_headers, "")
             else:
                 auth = self.headers['Authorization'][len('Basic')+1:]
@@ -104,7 +101,8 @@ class HTTPTestHandler(BaseHTTPRequestHandler):
                 else:
                     self._respond(403, extra_headers, "niet!")
         elif path == "/redirect":
-            extra_headers = [('Content-type', 'text/plain'),
+            extra_headers = [
+                ('Content-type', 'text/plain'),
                 ('Location', '/complete_redirect')]
             self._respond(301, extra_headers, "")
 
@@ -113,7 +111,8 @@ class HTTPTestHandler(BaseHTTPRequestHandler):
             self._respond(200, extra_headers, "ok")
 
         elif path == "/redirect_to_url":
-            extra_headers = [('Content-type', 'text/plain'),
+            extra_headers = [
+                ('Content-type', 'text/plain'),
                 ('Location', 'http://localhost:%s/complete_redirect' % PORT)]
             self._respond(301, extra_headers, "")
 
@@ -352,15 +351,3 @@ class HTTPTestHandler(BaseHTTPRequestHandler):
         self.wfile.close()
         self.rfile.close()
 
-server_thread = None
-def run_server_test():
-    global server_thread
-    if server_thread is not None:
-        return
-
-        
-    server = HTTPServer((HOST, PORT), HTTPTestHandler)
-
-    server_thread = threading.Thread(target=server.serve_forever)
-    server_thread.setDaemon(True)
-    server_thread.start()

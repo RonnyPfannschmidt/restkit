@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -
 # Copyright 2009 Paul J. Davis <paul.joseph.davis@gmail.com>
 #
-# This file is part of gunicorn released under the MIT license. 
+# This file is part of gunicorn released under the MIT license
 # See the NOTICE for more information.
 
 from __future__ import with_statement
@@ -14,9 +14,8 @@ dirname = os.path.dirname(__file__)
 
 from restkit.client import Client
 from restkit.resource import Resource
+from .http_server import HOST, PORT
 
-from _server_test import HOST, PORT, run_server_test
-run_server_test()
 
 def data_source(fname):
     buf = StringIO()
@@ -25,10 +24,10 @@ def data_source(fname):
             line = line.rstrip("\n").replace("\\r\\n", "\r\n")
             buf.write(line)
         return buf
-        
-        
+
+
 class FakeSocket(object):
-    
+
     def __init__(self, data):
         self.tmp = tempfile.TemporaryFile()
         if data:
@@ -38,35 +37,36 @@ class FakeSocket(object):
 
     def fileno(self):
         return self.tmp.fileno()
-        
+
     def len(self):
         return self.tmp.len
-        
+
     def recv(self, length=None):
         return self.tmp.read()
-        
+
     def recv_into(self, buf, length):
         tmp_buffer = self.tmp.read(length)
         v = len(tmp_buffer)
         for i, c in enumerate(tmp_buffer):
             buf[i] = c
         return v
-        
+
     def send(self, data):
         self.tmp.write(data)
         self.tmp.flush()
-        
+
     def seek(self, offset, whence=0):
         self.tmp.seek(offset, whence)
-                
+
+
 class client_request(object):
-    
+
     def __init__(self, path):
         if path.startswith("http://") or path.startswith("https://"):
             self.url = path
         else:
             self.url = 'http://%s:%s%s' % (HOST, PORT, path)
-        
+
     def __call__(self, func):
         def run():
             cli = Client(timeout=300)
