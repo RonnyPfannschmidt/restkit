@@ -39,9 +39,13 @@ def req(client):
     return req
 
 
-@pytest.mark.fixture
-def resource(request):
+@pytest.fixture
+def resource_url(request, http_server):
     try:
         return request.function.markers.url.args[0]
     except AttributeError:
         return 'http://%s:%s' % (HOST, PORT)
+
+@pytest.fixture
+def res(resource_url):
+    return Resource(resource_url)
