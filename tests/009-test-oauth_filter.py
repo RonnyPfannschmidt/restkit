@@ -20,7 +20,6 @@ import urllib
 
 from restkit import request, OAuthFilter
 from restkit.oauth2 import Consumer
-import t
 
 
 class oauth_request(object):
@@ -57,29 +56,23 @@ class oauth_request(object):
 @oauth_request('request_token')
 def test_001(o, u, b):
     r = request(u, filters=[o])
-    t.eq(r.status_int, 200)
+    assert r.status_int == 200
     
 @oauth_request('request_token')
 def test_002(o, u, b):
     r = request(u, "POST", filters=[o])
-    t.eq(r.status_int, 200)
+    assert r.status_int == 200
     f = dict(parse_qsl(r.body_string()))
-    t.isin('oauth_token', f)
-    t.isin('oauth_token_secret', f)
-    
+    assert 'oauth_token' in f
+    assert 'oauth_token_secret' in f
 
 @oauth_request('two_legged')
 def test_003(o, u, b):
     r = request(u, "POST", body=b, filters=[o])
-    import sys
-    print >>sys.stderr, r.body_string()
-    t.eq(r.status_int, 200)
+    print r.body_string()
+    assert r.status_int == 200
 
 @oauth_request('two_legged')
 def test_004(o, u, b):
     r = request(u, "GET", filters=[o])
-    t.eq(r.status_int, 200)
-    
-    
-
-
+    assert r.status_int == 200
